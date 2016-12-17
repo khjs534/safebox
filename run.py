@@ -42,6 +42,14 @@ def add_tracking(value):
     tracking.write(value + " ")
 
 def remove_tracking(value):
+  tracking_file = open('tracking.txt', 'r+')
+  tracking_array = tracking_file.readline().split(" ")
+  if value in tracking_array:
+    tracking_file.close()
+    tracking_array.remove(value)
+    tracking_string = " ".join(tracking_array)
+    tracking_file = open('tracking.txt', 'w+')
+    tracking_file.write(tracking_string + " ")
   
 # def add_user(value):
 
