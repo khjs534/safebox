@@ -35,6 +35,19 @@ def command_return(incoming_message):
   else:
     return "command not supported"
 
+def add_tracking(value):
+  tracking = open('tracking.txt', 'r+')
+  tracking_array = tracking.readline().split(" ")
+  if not value in tracking_array:
+    tracking.write(value + " ")
+
+def remove_tracking(value):
+  
+# def add_user(value):
+
+# def remove_user(value):
+
+
 @app.route("/", methods=['GET', 'POST'])
 def incoming():
 
@@ -63,12 +76,16 @@ def incoming():
             message = "no value given"
           else:
             if command == "add tracking":
+              add_tracking(value)
               message = "tracking number " + value + " added"
             if command == "remove tracking":
+              remove_tracking(value)
               message = "tracking number " + value + " removed"
             if command == "add user":
+              add_user(value)
               message = "user " + value + " added"
             if command == "remove user":
+              remove_user(value)
               message = "user " + value + " removed"
         else:
           message = "user not authorized"
