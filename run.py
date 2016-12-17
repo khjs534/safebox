@@ -51,9 +51,21 @@ def remove_tracking(value):
     tracking_file = open('tracking.txt', 'w+')
     tracking_file.write(tracking_string + " ")
   
-# def add_user(value):
+def add_user(value):
+  users = open('users.txt', 'r+')
+  users_array = users.readline().split(" ")
+  if not value in users_array:
+    users.write(value + " ")
 
-# def remove_user(value):
+def remove_user(value):
+  users_file = open('users.txt', 'r+')
+  users_array = users_file.readline().split(" ")
+  if value in users_array:
+    users_file.close()
+    users_array.remove(value)
+    users_string = " ".join(users_array)
+    users_file = open('users.txt', 'w+')
+    users_file.write(users_string + " ")
 
 
 @app.route("/", methods=['GET', 'POST'])
