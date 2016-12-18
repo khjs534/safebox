@@ -5,8 +5,8 @@ app = Flask(__name__)
 
 def admin_check(sender_number):
   admin_number = open('admin.txt', 'r')
-  admin_number = admin_number.readline()
-  if admin_number == sender_number:
+  admin_number = admin_number.readline().split(" ")
+  if sender_number in admin_number:
     return True
   else:
     return False
@@ -50,7 +50,7 @@ def remove_tracking(value):
     tracking_string = " ".join(tracking_array)
     tracking_file = open('tracking.txt', 'w+')
     tracking_file.write(tracking_string + " ")
-  
+
 def add_user(value):
   users = open('users.txt', 'r+')
   users_array = users.readline().split(" ")
@@ -74,15 +74,16 @@ def incoming():
     incoming_message = request.values.get('Body', None).split(" ")
     sender_number = request.values.get('From', None)
 
+
     admin = admin_check(sender_number)
     user = user_check(sender_number)
     command = command_return(incoming_message)
-    
+
     if len(incoming_message) > 2:
       value = incoming_message[2]
     else:
       value = None
-      
+
     if admin or user:
       if command == "command not supported":
         message = "command not supported"
