@@ -36,7 +36,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/Users/apprentice/safebox"
+set -gx VIRTUAL_ENV "/Users/bsimmons/Desktop/dbc/devbootcamp/phase-3/safebox"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH
