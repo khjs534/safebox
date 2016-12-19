@@ -37,37 +37,21 @@ def command_return(incoming_message):
   else:
     return "command not supported"
 
-def add_tracking(value):
-  tracking = open('tracking.txt', 'r+')
-  tracking_array = tracking.readline().split(" ")
-  if not value in tracking_array:
-    tracking.write(value + " ")
+def add(value, file):
+  open_file = open(file, 'r+')
+  data_array = open_file.readline().split(" ")
+  if not value in data_array:
+    open_file.write(value + " ")
 
-def remove_tracking(value):
-  tracking_file = open('tracking.txt', 'r+')
-  tracking_array = tracking_file.readline().split(" ")
-  if value in tracking_array:
-    tracking_file.close()
-    tracking_array.remove(value)
-    tracking_string = " ".join(tracking_array)
-    tracking_file = open('tracking.txt', 'w+')
-    tracking_file.write(tracking_string + " ")
-
-def add_user(value):
-  users = open('users.txt', 'r+')
-  users_array = users.readline().split(" ")
-  if not value in users_array:
-    users.write(value + " ")
-
-def remove_user(value):
-  users_file = open('users.txt', 'r+')
-  users_array = users_file.readline().split(" ")
-  if value in users_array:
-    users_file.close()
-    users_array.remove(value)
-    users_string = " ".join(users_array)
-    users_file = open('users.txt', 'w+')
-    users_file.write(users_string + " ")
+def remove(value, file):
+  open_file = open(file, 'r+')
+  data_array = open_file.readline().split(" ")
+  if value in data_array:
+    open_file.close()
+    data_array.remove(value)
+    data_string = " ".join(data_array)
+    open_file = open(file, 'w+')
+    open_file.write(data_string + " ")
 
 def lock():
   GPIO.setmode(GPIO.BOARD)
@@ -120,16 +104,16 @@ def incoming():
             message = "no value given"
           else:
             if command == "add tracking":
-              add_tracking(value)
+              add(value, 'tracking.txt')
               message = "tracking number " + value + " added"
             if command == "remove tracking":
-              remove_tracking(value)
+              remove(value, 'tracking.txt')
               message = "tracking number " + value + " removed"
             if command == "add user":
-              add_user(value)
+              add(value, 'users.txt')
               message = "user " + value + " added"
             if command == "remove user":
-              remove_user(value)
+              remove(value, 'users.txt')
               message = "user " + value + " removed"
         else:
           message = "user not authorized"
