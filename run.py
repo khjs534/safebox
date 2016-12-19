@@ -132,15 +132,15 @@ def incoming():
       if command == "command not supported":
         message = "command not supported"
       elif command == "lock":
-          lock()
           message_for_admin = "safebox locked by " + sender_number
           message_admins(message_for_admin)
-	  message = "safebox locked"
+          message = "safebox locked"
+          lock()
       elif command == "unlock":
-          unlock()
           message_for_admin = "safebox unlocked by " + sender_number
           message_admins(message_for_admin)
-	  message = "safebox unlocked"
+          message = "safebox unlocked"
+       	  unlock()
       else:
         if admin:
           if value == None:
