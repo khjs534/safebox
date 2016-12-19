@@ -1,14 +1,22 @@
 from flask import Flask, request, redirect
+from matrix_keypad import RPi_GPIO
 import twilio.twiml
 import time
 import RPi.GPIO as GPIO
+from twilio.rest import TwilioRestClient  
 
 app = Flask(__name__)
 
+# Add your stuff here
+ACCOUNT_SID = "" 
+AUTH_TOKEN = ""
+
+client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
+
 def admin_check(sender_number):
-  admin_number = open('admin.txt', 'r')
-  admin_number = admin_number.readline().split(" ")
-  if sender_number in admin_number:
+  admin_numbers = open('admin.txt', 'r')
+  admin_numbers = admin_numbers.readline().split(" ")
+  if sender_number in admin_numbers:
     return True
   else:
     return False
@@ -41,9 +49,13 @@ def command_return(incoming_message):
 
 def add(value, file):
   open_file = open(file, 'r+')
-  data_array = open_file.readline().split(" ")
+  data_array = open_file.readline().rstrip().split(" ")
   if not value in data_array:
-    open_file.write(value + " ")
+    open_file.close()
+    data_array.append(value)
+    data_string = " ".join(data_array)
+    open_file = open(file, 'w+')
+    open_file.write(data_string + " ")
 
 def remove(value, file):
   open_file = open(file, 'r+')
@@ -75,6 +87,31 @@ def unlock():
   pwm.ChangeDutyCycle(12)
   pwm.stop()
 
+def message_admins(message):
+  admin_numbers = open('admin.txt', 'r')
+  admin_numbers = admin_numbers.readline().rstrip().split(" ")
+  for i in range(len(admin_numbers)):
+    outgoing = client.messages.create(
+      to = admin_numbers[i],
+      # add your twilio phone number here
+      from_ = "",
+      body = message
+    )
+
+def digit():
+  kp = RPi_GPIO.keypad()
+  digitPressed = None
+  while digitPressed == None:
+    digitPressed = kp.getKey()
+  return digitPressed
+
+def access():
+  code = ""
+  while (len(code) < 4):
+    code += str(digit())
+  return code
+
+
 @app.route("/", methods=['GET', 'POST'])
 def incoming():
 
@@ -95,11 +132,15 @@ def incoming():
       if command == "command not supported":
         message = "command not supported"
       elif command == "lock":
-          message = "safebox locked"
-	  lock()
+          lock()
+          message_for_admin = "safebox locked by " + sender_number
+          message_admins(message_for_admin)
+	  message = "safebox locked"
       elif command == "unlock":
-          message = "safebox unlocked"
-	  unlock()
+          unlock()
+          message_for_admin = "safebox unlocked by " + sender_number
+          message_admins(message_for_admin)
+	  message = "safebox unlocked"
       else:
         if admin:
           if value == None:
