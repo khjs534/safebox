@@ -1,12 +1,14 @@
 from flask import Flask, request, redirect
 import twilio.twiml
+import time
+import RPi.GPIO as GPIO
 
 app = Flask(__name__)
 
 def admin_check(sender_number):
   admin_number = open('admin.txt', 'r')
-  admin_number = admin_number.readline()
-  if admin_number == sender_number:
+  admin_number = admin_number.readline().split(" ")
+  if sender_number in admin_number:
     return True
   else:
     return False
@@ -50,7 +52,7 @@ def remove_tracking(value):
     tracking_string = " ".join(tracking_array)
     tracking_file = open('tracking.txt', 'w+')
     tracking_file.write(tracking_string + " ")
-  
+
 def add_user(value):
   users = open('users.txt', 'r+')
   users_array = users.readline().split(" ")
@@ -67,6 +69,25 @@ def remove_user(value):
     users_file = open('users.txt', 'w+')
     users_file.write(users_string + " ")
 
+def lock():
+  GPIO.setmode(GPIO.BOARD)
+  servoPin = 11
+  GPIO.setup(servoPin, GPIO.OUT)
+  pwm = GPIO.PWM(servoPin, 50)
+  pwm.start(7)
+  time.sleep(0.5)
+  pwm.ChangeDutyCycle(7)
+  pwm.stop()
+
+def unlock():
+  GPIO.setmode(GPIO.BOARD)
+  servoPin = 11
+  GPIO.setup(servoPin, GPIO.OUT)
+  pwm = GPIO.PWM(servoPin, 50)
+  pwm.start(12)
+  time.sleep(0.5)
+  pwm.ChangeDutyCycle(12)
+  pwm.stop()
 
 @app.route("/", methods=['GET', 'POST'])
 def incoming():
@@ -74,21 +95,24 @@ def incoming():
     incoming_message = request.values.get('Body', None).split(" ")
     sender_number = request.values.get('From', None)
 
+
     admin = admin_check(sender_number)
     user = user_check(sender_number)
     command = command_return(incoming_message)
-    
+
     if len(incoming_message) > 2:
       value = incoming_message[2]
     else:
       value = None
-      
+
     if admin or user:
       if command == "command not supported":
         message = "command not supported"
       elif command == "lock":
+          lock()
           message = "safebox locked"
       elif command == "unlock":
+          unlock()
           message = "safebox unlocked"
       else:
         if admin:
