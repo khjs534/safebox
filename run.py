@@ -2,13 +2,19 @@ from flask import Flask, request, redirect
 import twilio.twiml
 import time
 import RPi.GPIO as GPIO
+from twilio.rest import TwilioRestClient  
 
 app = Flask(__name__)
 
+ACCOUNT_SID = "" 
+AUTH_TOKEN = ""
+
+client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
+
 def admin_check(sender_number):
-  admin_number = open('admin.txt', 'r')
-  admin_number = admin_number.readline().split(" ")
-  if sender_number in admin_number:
+  admin_numbers = open('admin.txt', 'r')
+  admin_numbers = admin_numbers.readline().split(" ")
+  if sender_number in admin_numbers:
     return True
   else:
     return False
@@ -73,6 +79,17 @@ def unlock():
   pwm.ChangeDutyCycle(12)
   pwm.stop()
 
+def message_admins(message):
+  admin_numbers = open('admin.txt', 'r')
+  admin_numbers = admin_numbers.readline().rstrip().split(" ")
+  for i in range(len(admin_numbers)):
+    outgoing = client.messages.create(
+      to = admin_numbers[i], 
+      from_ = "", 
+      body = message
+    )
+    print outgoing
+
 @app.route("/", methods=['GET', 'POST'])
 def incoming():
 
@@ -94,9 +111,13 @@ def incoming():
         message = "command not supported"
       elif command == "lock":
           lock()
+          message_for_admin = "safebox locked by " + sender_number
+          message_admins(message_for_admin)
           message = "safebox locked"
       elif command == "unlock":
           unlock()
+          message_for_admin = "safebox unlocked by " + sender_number
+          message_admins(message_for_admin)
           message = "safebox unlocked"
       else:
         if admin:
