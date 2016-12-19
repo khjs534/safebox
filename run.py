@@ -31,8 +31,10 @@ def command_return(incoming_message):
   elif incoming_message[0].lower() == "remove" and incoming_message[1].lower() == "user":
     return "remove user"
   elif incoming_message[0].lower() == "lock":
+    lock()
     return "lock"
   elif incoming_message[0].lower() == "unlock":
+    unlock()
     return "unlock"
   else:
     return "command not supported"
@@ -109,10 +111,8 @@ def incoming():
       if command == "command not supported":
         message = "command not supported"
       elif command == "lock":
-          lock()
           message = "safebox locked"
       elif command == "unlock":
-          unlock()
           message = "safebox unlocked"
       else:
         if admin:
