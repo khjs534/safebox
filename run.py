@@ -1,14 +1,22 @@
 from flask import Flask, request, redirect
+from matrix_keypad import RPi_GPIO
 import twilio.twiml
 import time
 import RPi.GPIO as GPIO
+from twilio.rest import TwilioRestClient  
 
 app = Flask(__name__)
 
+# Add your stuff here
+ACCOUNT_SID = "" 
+AUTH_TOKEN = ""
+
+client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
+
 def admin_check(sender_number):
-  admin_number = open('admin.txt', 'r')
-  admin_number = admin_number.readline().split(" ")
-  if sender_number in admin_number:
+  admin_numbers = open('admin.txt', 'r')
+  admin_numbers = admin_numbers.readline().split(" ")
+  if sender_number in admin_numbers:
     return True
   else:
     return False
@@ -31,43 +39,33 @@ def command_return(incoming_message):
   elif incoming_message[0].lower() == "remove" and incoming_message[1].lower() == "user":
     return "remove user"
   elif incoming_message[0].lower() == "lock":
+    # lock()
     return "lock"
   elif incoming_message[0].lower() == "unlock":
+    # unlock()
     return "unlock"
   else:
     return "command not supported"
 
-def add_tracking(value):
-  tracking = open('tracking.txt', 'r+')
-  tracking_array = tracking.readline().split(" ")
-  if not value in tracking_array:
-    tracking.write(value + " ")
+def add(value, file):
+  open_file = open(file, 'r+')
+  data_array = open_file.readline().rstrip().split(" ")
+  if not value in data_array:
+    open_file.close()
+    data_array.append(value)
+    data_string = " ".join(data_array)
+    open_file = open(file, 'w+')
+    open_file.write(data_string + " ")
 
-def remove_tracking(value):
-  tracking_file = open('tracking.txt', 'r+')
-  tracking_array = tracking_file.readline().split(" ")
-  if value in tracking_array:
-    tracking_file.close()
-    tracking_array.remove(value)
-    tracking_string = " ".join(tracking_array)
-    tracking_file = open('tracking.txt', 'w+')
-    tracking_file.write(tracking_string + " ")
-
-def add_user(value):
-  users = open('users.txt', 'r+')
-  users_array = users.readline().split(" ")
-  if not value in users_array:
-    users.write(value + " ")
-
-def remove_user(value):
-  users_file = open('users.txt', 'r+')
-  users_array = users_file.readline().split(" ")
-  if value in users_array:
-    users_file.close()
-    users_array.remove(value)
-    users_string = " ".join(users_array)
-    users_file = open('users.txt', 'w+')
-    users_file.write(users_string + " ")
+def remove(value, file):
+  open_file = open(file, 'r+')
+  data_array = open_file.readline().split(" ")
+  if value in data_array:
+    open_file.close()
+    data_array.remove(value)
+    data_string = " ".join(data_array)
+    open_file = open(file, 'w+')
+    open_file.write(data_string + " ")
 
 def lock():
   GPIO.setmode(GPIO.BOARD)
@@ -89,6 +87,31 @@ def unlock():
   pwm.ChangeDutyCycle(12)
   pwm.stop()
 
+def message_admins(message):
+  admin_numbers = open('admin.txt', 'r')
+  admin_numbers = admin_numbers.readline().rstrip().split(" ")
+  for i in range(len(admin_numbers)):
+    outgoing = client.messages.create(
+      to = admin_numbers[i],
+      # add your twilio phone number here
+      from_ = "",
+      body = message
+    )
+
+def digit():
+  kp = RPi_GPIO.keypad()
+  digitPressed = None
+  while digitPressed == None:
+    digitPressed = kp.getKey()
+  return digitPressed
+
+def access():
+  code = ""
+  while (len(code) < 4):
+    code += str(digit())
+  return code
+
+
 @app.route("/", methods=['GET', 'POST'])
 def incoming():
 
@@ -109,27 +132,31 @@ def incoming():
       if command == "command not supported":
         message = "command not supported"
       elif command == "lock":
-          message = "safebox locked"
           lock()
+          message_for_admin = "safebox locked by " + sender_number
+          message_admins(message_for_admin)
+	  message = "safebox locked"
       elif command == "unlock":
-          message = "safebox unlocked"
-	  unlock()
+          unlock()
+          message_for_admin = "safebox unlocked by " + sender_number
+          message_admins(message_for_admin)
+	  message = "safebox unlocked"
       else:
         if admin:
           if value == None:
             message = "no value given"
           else:
             if command == "add tracking":
-              add_tracking(value)
+              add(value, 'tracking.txt')
               message = "tracking number " + value + " added"
             if command == "remove tracking":
-              remove_tracking(value)
+              remove(value, 'tracking.txt')
               message = "tracking number " + value + " removed"
             if command == "add user":
-              add_user(value)
+              add(value, 'users.txt')
               message = "user " + value + " added"
             if command == "remove user":
-              remove_user(value)
+              remove(value, 'users.txt')
               message = "user " + value + " removed"
         else:
           message = "user not authorized"
