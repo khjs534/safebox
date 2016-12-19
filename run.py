@@ -1,4 +1,5 @@
 from flask import Flask, request, redirect
+from matrix_keypad import RPi_GPIO
 import twilio.twiml
 import time
 import RPi.GPIO as GPIO
@@ -6,6 +7,7 @@ from twilio.rest import TwilioRestClient
 
 app = Flask(__name__)
 
+# Add your stuff here
 ACCOUNT_SID = "" 
 AUTH_TOKEN = ""
 
@@ -37,17 +39,23 @@ def command_return(incoming_message):
   elif incoming_message[0].lower() == "remove" and incoming_message[1].lower() == "user":
     return "remove user"
   elif incoming_message[0].lower() == "lock":
+    # lock()
     return "lock"
   elif incoming_message[0].lower() == "unlock":
+    # unlock()
     return "unlock"
   else:
     return "command not supported"
 
 def add(value, file):
   open_file = open(file, 'r+')
-  data_array = open_file.readline().split(" ")
+  data_array = open_file.readline().rstrip().split(" ")
   if not value in data_array:
-    open_file.write(value + " ")
+    open_file.close()
+    data_array.append(value)
+    data_string = " ".join(data_array)
+    open_file = open(file, 'w+')
+    open_file.write(data_string + " ")
 
 def remove(value, file):
   open_file = open(file, 'r+')
@@ -84,11 +92,25 @@ def message_admins(message):
   admin_numbers = admin_numbers.readline().rstrip().split(" ")
   for i in range(len(admin_numbers)):
     outgoing = client.messages.create(
-      to = admin_numbers[i], 
-      from_ = "", 
+      to = admin_numbers[i],
+      # add your twilio phone number here
+      from_ = "",
       body = message
     )
-    print outgoing
+
+def digit():
+  kp = RPi_GPIO.keypad()
+  digitPressed = None
+  while digitPressed == None:
+    digitPressed = kp.getKey()
+  return digitPressed
+
+def access():
+  code = ""
+  while (len(code) < 4):
+    code += str(digit())
+  return code
+
 
 @app.route("/", methods=['GET', 'POST'])
 def incoming():
