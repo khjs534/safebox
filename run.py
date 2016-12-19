@@ -1,5 +1,7 @@
 from flask import Flask, request, redirect
 import twilio.twiml
+import time
+import RPi.GPIO as GPIO
 
 app = Flask(__name__)
 
@@ -67,6 +69,25 @@ def remove_user(value):
     users_file = open('users.txt', 'w+')
     users_file.write(users_string + " ")
 
+def lock():
+  GPIO.setmode(GPIO.BOARD)
+  servoPin = 11
+  GPIO.setup(servoPin, GPIO.OUT)
+  pwm = GPIO.PWM(servoPin, 50)
+  pwm.start(7)
+  time.sleep(0.5)
+  pwm.ChangeDutyCycle(7)
+  pwm.stop()
+
+def unlock():
+  GPIO.setmode(GPIO.BOARD)
+  servoPin = 11
+  GPIO.setup(servoPin, GPIO.OUT)
+  pwm = GPIO.PWM(servoPin, 50)
+  pwm.start(12)
+  time.sleep(0.5)
+  pwm.ChangeDutyCycle(12)
+  pwm.stop()
 
 @app.route("/", methods=['GET', 'POST'])
 def incoming():
@@ -88,8 +109,10 @@ def incoming():
       if command == "command not supported":
         message = "command not supported"
       elif command == "lock":
+          lock()
           message = "safebox locked"
       elif command == "unlock":
+          unlock()
           message = "safebox unlocked"
       else:
         if admin:
