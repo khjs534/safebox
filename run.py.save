@@ -8,9 +8,8 @@ from twilio.rest import TwilioRestClient
 app = Flask(__name__)
 
 # Add your stuff here
-ACCOUNT_SID = ""
+ACCOUNT_SID = "" 
 AUTH_TOKEN = ""
-TWILIO_NUMBER = ""
 
 client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
 
@@ -40,8 +39,10 @@ def command_return(incoming_message):
   elif incoming_message[0].lower() == "remove" and incoming_message[1].lower() == "user":
     return "remove user"
   elif incoming_message[0].lower() == "lock":
+    # lock()
     return "lock"
   elif incoming_message[0].lower() == "unlock":
+    # unlock()
     return "unlock"
   else:
     return "command not supported"
@@ -92,7 +93,8 @@ def message_admins(message):
   for i in range(len(admin_numbers)):
     outgoing = client.messages.create(
       to = admin_numbers[i],
-      from_ = TWILIO_NUMBER,
+      # add your twilio phone number here
+      from_ = "",
       body = message
     )
 
@@ -121,8 +123,7 @@ def incoming():
     user = user_check(sender_number)
     command = command_return(incoming_message)
 
-    if len(incoming_message) > 2:
-      value = incoming_message[2]
+    if len(incoming_message) > 2:      value = incoming_message[2]
     else:
       value = None
 
@@ -130,15 +131,23 @@ def incoming():
       if command == "command not supported":
         message = "command not supported"
       elif command == "lock":
+	  lock()
           message_for_admin = "safebox locked by " + sender_number
           message_admins(message_for_admin)
           message = "safebox locked"
+<<<<<<< HEAD
+=======
           lock()
+>>>>>>> e63031c67b4063e820056a54ddbe72df01a87b8c
       elif command == "unlock":
+	  unlock()
           message_for_admin = "safebox unlocked by " + sender_number
           message_admins(message_for_admin)
           message = "safebox unlocked"
+<<<<<<< HEAD
+=======
        	  unlock()
+>>>>>>> e63031c67b4063e820056a54ddbe72df01a87b8c
       else:
         if admin:
           if value == None:
