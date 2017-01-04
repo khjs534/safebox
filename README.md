@@ -8,8 +8,8 @@ To learn more about interconnected systems via MCU programming and python script
 execution.
 
 Overview:
-The project consists of using the twilio API to send commands to an arduino running twilio-python library.
-Given a certain command the arduino will lock, or unlock.
+The project consists of using the twilio API to send commands to a raspberry pi running twilio-python library.
+Given a certain command the raspberry pi will lock, or unlock.
 
 The SafeBox will also have a keypad that a delivery person can open via the last 4 digits of the tracking number on the package.
 They can then lock it by pushing "####". The SafeBox will only open if the 4 digits entered are on a list of tracking numbers.
@@ -30,14 +30,13 @@ unlock
 
 DEPENDENCIES:
 * Hardware
-  * Arduino Yun
+  * Raspberry Pi
   * Keypad
   * Servo Motor(s)
 
 * Software
   * Python
   * Twilio API
-  * Arduino IDE
 
 CONTRIBUTIONS & LICENSING:
   TBD
