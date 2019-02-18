@@ -1,6 +1,5 @@
 ## SafeBox Project
 
-
 Developers: Bradley Simmons, Danny Kalemba, Sean Kung
 
 ### PROBLEM:
@@ -49,5 +48,5 @@ If an admin was unable to pick up a package or if a package is meant for someone
   * Ngrok
 
 ### CONTRIBUTIONS & LICENSING:
-  TBD
+  [MIT](https://github.com/khjs534/safebox/blob/master/LICENSE)
 
