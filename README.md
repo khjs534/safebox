@@ -1,14 +1,14 @@
-## SafeBox Project
+##SafeBox Project
 
 Developers: Bradley Simmons, Danny Kalemba, Sean Kung
 
-### PROBLEM:
+###PROBLEM:
 The problem that we aimed to solve is that with the rise of internet shopping there has been a rise in package theft.
 
-### PURPOSE:
+###PURPOSE:
 To learn more about interconnected systems via MCU programming. We wanted to achieve this by created a box that would have a locking mechanism controlled by a MCU (raspberry pi, or arduino yun).
 
-### Overview:
+###Overview:
 We thought to use a common piece of information between the package carrier and the user so they could both easily open the Safebox. In the context of our project we thought of using the last four digits of the tracking number on the package.
 
 We wanted to add easier functionality for the user by integrating the Twilio API. This way a user could send ordinary text messages to control the Safebox as well as receive text notification about status changes from the Safebox.
@@ -30,7 +30,7 @@ If an admin was unable to pick up a package or if a package is meant for someone
 
 
 
-### DEPENDENCIES:
+###DEPENDENCIES:
 * Hardware
   * Raspberry Pi
   * Keypad
@@ -47,6 +47,6 @@ If an admin was unable to pick up a package or if a package is meant for someone
   * Flask
   * Ngrok
 
-### CONTRIBUTIONS & LICENSING:
+###LICENSE:
   [MIT](https://github.com/khjs534/safebox/blob/master/LICENSE)
 
